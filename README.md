@@ -4,7 +4,10 @@
 This content is designed to gather service mesh configuration examples alongside with useful command to use and real configurations for validated and approved deployments.
 
 ## Reference
-This content add all the configuration option possible for crds
+This content add all the possible configuration options for service mesh crds:
+    - gateway
+    - virtual service
+    - destination rules
 
 ## Performance
 

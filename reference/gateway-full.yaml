@@ -1,48 +1,48 @@
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: full-gateway-example
-  namespace: default
+  name: full-gateway-example # Name of the Gateway
+  namespace: default # Namespace for the resource
 spec:
   selector:
-    istio: ingressgateway # use istio default gateway
+    istio: ingressgateway # Use Istio default ingress gateway
   servers:
     - port:
-        number: 80
-        name: http
-        protocol: HTTP
+        number: 80 # Port number
+        name: http # Port name
+        protocol: HTTP # Protocol type
       hosts:
-        - "*"
+        - "*" # Hosts allowed
       tls:
-        httpsRedirect: false # disables HTTPS redirect
+        httpsRedirect: false # Disable HTTPS redirect
     - port:
-        number: 443
-        name: https
-        protocol: HTTPS
+        number: 443 # Port number
+        name: https # Port name
+        protocol: HTTPS # Protocol type
       hosts:
-        - "my-service.example.com"
+        - "my-service.example.com" # Allowed host
       tls:
-        mode: SIMPLE
-        credentialName: my-credential
-        minProtocolVersion: TLSV1_2
-        maxProtocolVersion: TLSV1_3
+        mode: SIMPLE # TLS mode
+        credentialName: my-credential # Secret for TLS certs
+        minProtocolVersion: TLSV1_2 # Minimum TLS version
+        maxProtocolVersion: TLSV1_3 # Maximum TLS version
         cipherSuites:
-          - ECDHE-ECDSA-AES128-GCM-SHA256
+          - ECDHE-ECDSA-AES128-GCM-SHA256 # Cipher suite
         subjectAltNames:
-          - my-service.example.com
-        caCertificates: /etc/certs/root-cert.pem
-        serverCertificate: /etc/certs/server-cert.pem
-        privateKey: /etc/certs/private-key.pem
-        httpsRedirect: true
+          - my-service.example.com # Subject alternative name
+        caCertificates: /etc/certs/root-cert.pem # CA certs path
+        serverCertificate: /etc/certs/server-cert.pem # Server cert path
+        privateKey: /etc/certs/private-key.pem # Private key path
+        httpsRedirect: true # Enable HTTPS redirect
         verifyCertificateSpki:
-          - spki1
+          - spki1 # SPKI pinning
         verifyCertificateHash:
-          - hash1
+          - hash1 # Certificate hash
         verifySubjectAltName:
-          - my-service.example.com
+          - my-service.example.com # Subject alt name
         sniDomains:
-          - my-service.example.com
+          - my-service.example.com # SNI domains
   # Additional fields for completeness
   workloadSelector:
     labels:
-      app: my-gateway-app
+      app: my-gateway-app # Select workloads by label

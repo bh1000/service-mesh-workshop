@@ -5,52 +5,53 @@ metadata:
   namespace: default
 spec:
   host: my-service
+    # Service to which this rule applies
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN
-      consistentHash:
-        httpHeaderName: user
-        minimumRingSize: 1024
+        simple: ROUND_ROBIN # Load balancing algorithm
+        consistentHash: # Hash-based load balancing
+          httpHeaderName: user # Header for hash calculation
+          minimumRingSize: 1024 # Minimum hash ring size
     connectionPool:
-      tcp:
-        maxConnections: 100
-      http:
-        http1MaxPendingRequests: 1000
-        http2MaxRequests: 1000
-        maxRequestsPerConnection: 100
-        maxRetries: 3
+        tcp: # TCP connection pool settings
+          maxConnections: 100 # Max TCP connections
+        http: # HTTP connection pool settings
+          http1MaxPendingRequests: 1000 # Max HTTP/1 pending requests
+          http2MaxRequests: 1000 # Max HTTP/2 requests
+          maxRequestsPerConnection: 100 # Max requests per connection
+          maxRetries: 3 # Max retry attempts
     outlierDetection:
-      consecutive5xxErrors: 5
-      interval: 1s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 50
-      minHealthPercent: 80
+        consecutive5xxErrors: 5 # Eject after this many 5xx errors
+        interval: 1s # Interval between ejection checks
+        baseEjectionTime: 30s # Base ejection duration
+        maxEjectionPercent: 50 # Max % of hosts ejected
+        minHealthPercent: 80 # Min % of healthy hosts
     tls:
-      mode: ISTIO_MUTUAL
-      clientCertificate: /etc/certs/client-cert.pem
-      privateKey: /etc/certs/private-key.pem
-      caCertificates: /etc/certs/root-cert.pem
-      sni: my-service.example.com
-      subjectAltNames:
-        - my-service.example.com
+        mode: ISTIO_MUTUAL # TLS mode
+        clientCertificate: /etc/certs/client-cert.pem # Client cert path
+        privateKey: /etc/certs/private-key.pem # Private key path
+        caCertificates: /etc/certs/root-cert.pem # CA certs path
+        sni: my-service.example.com # SNI for TLS
+        subjectAltNames:
+          - my-service.example.com # Subject alternative names
   subsets:
-    - name: v1
-      labels:
-        version: v1
-      trafficPolicy:
-        loadBalancer:
-          simple: LEAST_CONN
-    - name: v2
-      labels:
-        version: v2
-        env: prod
-      trafficPolicy:
-        loadBalancer:
-          simple: RANDOM
+      - name: v1 # Subset name
+        labels:
+          version: v1 # Subset label
+        trafficPolicy:
+          loadBalancer:
+            simple: LEAST_CONN # Load balancing for subset
+      - name: v2 # Subset name
+        labels:
+          version: v2 # Subset label
+          env: prod # Environment label
+        trafficPolicy:
+          loadBalancer:
+            simple: RANDOM # Load balancing for subset
   exportTo:
-    - "."
-    - "istio-system"
+      - "." # Export to current namespace
+      - "istio-system" # Export to istio-system
   # Additional fields for completeness
   workloadSelector:
-    labels:
-      app: my-app
+      labels:
+        app: my-app # Select workloads by label

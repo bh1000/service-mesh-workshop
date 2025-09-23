@@ -1,0 +1,35 @@
+apiversion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: ext-host-gwy
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 443 # port number
+      name: https # port name
+      protocol: HTTPS # protocol
+    hosts:
+    - ext-host.example.com # allowed host
+    tls:
+      mode: SIMPLE # TLS mode
+      credentialName: ext-host-cert # secret that holds certs
+
+---
+apiVesion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: ext-host-vs
+spec:
+  hosts:
+  - ext-host.example.com # vs to put in the gateway
+  gateways:
+  - ext-host-gwy
+  http:
+  - match:
+    - uri:
+        prefix: /reviews
+      route:
+      - destination:
+          host: reviews

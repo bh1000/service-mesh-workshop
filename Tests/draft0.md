@@ -11,7 +11,7 @@
 # Tests > OpenShift
     * Timeout
     * Fault injection
-    * Delay injections
+    * Delay injection
     * Retry policy
     ...
 
@@ -30,12 +30,14 @@
     * Output:
         * Limit
 
-# Recommendation:
-
 # SLO > KIALI+JAEGER:
     * Request numbers per second
     * Response Time
     * Active users
     * Time processing for x requests
 
-# Limits >
+# Observation > DOCS
+    - Limits
+    - missing configs
+# Recommendation > DOCS
+    - new configs

@@ -1,0 +1,26 @@
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: svc-ServiceEntry
+spec:
+  hosts:
+  - svc.example.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+  location: MESH_EXTERNAL
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata: 
+  name: ext-res-dr
+spec:
+  host: svc.example.com
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        connectTimeout: 10s
+        maxConnections: 100

@@ -1,141 +1,147 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: full-virtualservice-example
-  namespace: default
+  name: full-virtualservice-example # Name of the VirtualService
+  namespace: default # Namespace for the resource
 spec:
   hosts:
-    - my-service
-    - my-service.example.com
+    - my-service # Service host
+    - my-service.example.com # FQDN host
   gateways:
-    - my-gateway
-    - mesh # applies to all sidecars in the mesh
+    - my-gateway # Gateway resource
+    - mesh # Applies to all sidecars
   http:
     - name: http-route-1
+      # HTTP route for traffic
       match:
         - uri:
-            exact: /exact
+            exact: /exact # Exact URI match
         - uri:
-            prefix: /prefix
+            prefix: /prefix # Prefix URI match
         - uri:
-            regex: /regex.*
+            regex: /regex.* # Regex URI match
         - method:
-            exact: GET
+            exact: GET # HTTP method match
         - headers:
             x-custom-header:
-              exact: value
+              exact: value # Header match
       route:
         - destination:
-            host: my-service
-            subset: v1
+            host: my-service # Destination service
+            subset: v1 # Subset version
             port:
-              number: 80
-          weight: 80
+              number: 80 # Service port
+          weight: 80 # Traffic weight
         - destination:
-            host: my-service
-            subset: v2
+            host: my-service # Destination service
+            subset: v2 # Subset version
             port:
-              number: 80
-          weight: 20
+              number: 80 # Service port
+          weight: 20 # Traffic weight
       timeout: 10s
+      # Timeout for requests
       retries:
-        attempts: 3
-        perTryTimeout: 2s
-        retryOn: gateway-error,connect-failure,refused-stream
+        attempts: 3 # Number of retry attempts
+        perTryTimeout: 2s # Timeout per retry
+        retryOn: gateway-error,connect-failure,refused-stream # Retry conditions
       fault:
         delay:
           percentage:
-            value: 10
-          fixedDelay: 5s
+            value: 10 # Delay percentage
+          fixedDelay: 5s # Fixed delay duration
         abort:
           percentage:
-            value: 5
-          httpStatus: 500
+            value: 5 # Abort percentage
+          httpStatus: 500 # HTTP status to abort
       mirror:
-        host: my-mirror-service
-        subset: v1
+        host: my-mirror-service # Mirror destination
+        subset: v1 # Mirror subset
         port:
-          number: 80
+          number: 80 # Mirror port
       mirrorPercentage:
-        value: 50
+        value: 50 # Mirror traffic percentage
       corsPolicy:
         allowOrigins:
-          - exact: https://example.com
+          - exact: https://example.com # Allowed origin
         allowMethods:
-          - GET
-          - POST
+          - GET # Allowed method
+          - POST # Allowed method
         allowHeaders:
-          - X-Custom-Header
+          - X-Custom-Header # Allowed header
         exposeHeaders:
-          - X-Custom-Response-Header
+          - X-Custom-Response-Header # Exposed header
         maxAge: 24h
+        # Max age for preflight
         allowCredentials: true
+        # Allow credentials
       headers:
         request:
           add:
-            x-added-header: value
+            x-added-header: value # Add request header
           set:
-            x-set-header: value
+            x-set-header: value # Set request header
           remove:
-            - x-remove-header
+            - x-remove-header # Remove request header
         response:
           add:
-            x-added-response-header: value
+            x-added-response-header: value # Add response header
           set:
-            x-set-response-header: value
+            x-set-response-header: value # Set response header
           remove:
-            - x-remove-response-header
+            - x-remove-response-header # Remove response header
       rewrite:
-        uri: /rewritten
-        authority: rewritten.example.com
+        uri: /rewritten # Rewrite URI
+        authority: rewritten.example.com # Rewrite authority
       redirect:
-        uri: /redirected
-        authority: redirected.example.com
-        redirectCode: 302
+        uri: /redirected # Redirect URI
+        authority: redirected.example.com # Redirect authority
+        redirectCode: 302 # Redirect code
       appendHeaders:
-        x-append-header: value
+        x-append-header: value # Append header
       removeRequestHeaders:
-        - x-remove-request-header
+        - x-remove-request-header # Remove request header
       removeResponseHeaders:
-        - x-remove-response-header
+        - x-remove-response-header # Remove response header
       websocketUpgrade: true
+      # Enable websocket upgrade
       retries:
-        attempts: 2
-        perTryTimeout: 1s
-        retryOn: 5xx,connect-failure
+        attempts: 2 # Retry attempts
+        perTryTimeout: 1s # Timeout per retry
+        retryOn: 5xx,connect-failure # Retry conditions
       delegate:
-        name: delegated-route
-        namespace: default
+        name: delegated-route # Delegate route name
+        namespace: default # Delegate route namespace
     - name: http-route-2
+      # Second HTTP route
       match:
-        - port: 8080
+        - port: 8080 # Match on port
       route:
         - destination:
-            host: my-service-alt
+            host: my-service-alt # Alternate service
             port:
-              number: 8080
+              number: 8080 # Alternate port
   tls:
     - match:
-        - port: 443
+        - port: 443 # TLS port
           sniHosts:
-            - my-service.example.com
+            - my-service.example.com # SNI host
       route:
         - destination:
-            host: my-service-tls
+            host: my-service-tls # TLS destination
             port:
-              number: 443
+              number: 443 # TLS port
   tcp:
     - match:
-        - port: 3306
+        - port: 3306 # TCP port
       route:
         - destination:
-            host: my-mysql-service
+            host: my-mysql-service # TCP destination
             port:
-              number: 3306
+              number: 3306 # TCP port
   exportTo:
-    - "."
-    - "istio-system"
+    - "." # Export to current namespace
+    - "istio-system" # Export to istio-system
   # Additional fields for completeness
   workloadSelector:
     labels:
-      app: my-app
+      app: my-app # Select workloads by label
