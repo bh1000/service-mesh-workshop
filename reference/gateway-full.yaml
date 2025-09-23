@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: full-gateway-example
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway # use istio default gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+      tls:
+        httpsRedirect: false # disables HTTPS redirect
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - "my-service.example.com"
+      tls:
+        mode: SIMPLE
+        credentialName: my-credential
+        minProtocolVersion: TLSV1_2
+        maxProtocolVersion: TLSV1_3
+        cipherSuites:
+          - ECDHE-ECDSA-AES128-GCM-SHA256
+        subjectAltNames:
+          - my-service.example.com
+        caCertificates: /etc/certs/root-cert.pem
+        serverCertificate: /etc/certs/server-cert.pem
+        privateKey: /etc/certs/private-key.pem
+        httpsRedirect: true
+        verifyCertificateSpki:
+          - spki1
+        verifyCertificateHash:
+          - hash1
+        verifySubjectAltName:
+          - my-service.example.com
+        sniDomains:
+          - my-service.example.com
+  # Additional fields for completeness
+  workloadSelector:
+    labels:
+      app: my-gateway-app

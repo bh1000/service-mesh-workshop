@@ -1,0 +1,141 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: full-virtualservice-example
+  namespace: default
+spec:
+  hosts:
+    - my-service
+    - my-service.example.com
+  gateways:
+    - my-gateway
+    - mesh # applies to all sidecars in the mesh
+  http:
+    - name: http-route-1
+      match:
+        - uri:
+            exact: /exact
+        - uri:
+            prefix: /prefix
+        - uri:
+            regex: /regex.*
+        - method:
+            exact: GET
+        - headers:
+            x-custom-header:
+              exact: value
+      route:
+        - destination:
+            host: my-service
+            subset: v1
+            port:
+              number: 80
+          weight: 80
+        - destination:
+            host: my-service
+            subset: v2
+            port:
+              number: 80
+          weight: 20
+      timeout: 10s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream
+      fault:
+        delay:
+          percentage:
+            value: 10
+          fixedDelay: 5s
+        abort:
+          percentage:
+            value: 5
+          httpStatus: 500
+      mirror:
+        host: my-mirror-service
+        subset: v1
+        port:
+          number: 80
+      mirrorPercentage:
+        value: 50
+      corsPolicy:
+        allowOrigins:
+          - exact: https://example.com
+        allowMethods:
+          - GET
+          - POST
+        allowHeaders:
+          - X-Custom-Header
+        exposeHeaders:
+          - X-Custom-Response-Header
+        maxAge: 24h
+        allowCredentials: true
+      headers:
+        request:
+          add:
+            x-added-header: value
+          set:
+            x-set-header: value
+          remove:
+            - x-remove-header
+        response:
+          add:
+            x-added-response-header: value
+          set:
+            x-set-response-header: value
+          remove:
+            - x-remove-response-header
+      rewrite:
+        uri: /rewritten
+        authority: rewritten.example.com
+      redirect:
+        uri: /redirected
+        authority: redirected.example.com
+        redirectCode: 302
+      appendHeaders:
+        x-append-header: value
+      removeRequestHeaders:
+        - x-remove-request-header
+      removeResponseHeaders:
+        - x-remove-response-header
+      websocketUpgrade: true
+      retries:
+        attempts: 2
+        perTryTimeout: 1s
+        retryOn: 5xx,connect-failure
+      delegate:
+        name: delegated-route
+        namespace: default
+    - name: http-route-2
+      match:
+        - port: 8080
+      route:
+        - destination:
+            host: my-service-alt
+            port:
+              number: 8080
+  tls:
+    - match:
+        - port: 443
+          sniHosts:
+            - my-service.example.com
+      route:
+        - destination:
+            host: my-service-tls
+            port:
+              number: 443
+  tcp:
+    - match:
+        - port: 3306
+      route:
+        - destination:
+            host: my-mysql-service
+            port:
+              number: 3306
+  exportTo:
+    - "."
+    - "istio-system"
+  # Additional fields for completeness
+  workloadSelector:
+    labels:
+      app: my-app

@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: full-destinationrule-example
+  namespace: default
+spec:
+  host: my-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+      consistentHash:
+        httpHeaderName: user
+        minimumRingSize: 1024
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 1000
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 1s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 80
+    tls:
+      mode: ISTIO_MUTUAL
+      clientCertificate: /etc/certs/client-cert.pem
+      privateKey: /etc/certs/private-key.pem
+      caCertificates: /etc/certs/root-cert.pem
+      sni: my-service.example.com
+      subjectAltNames:
+        - my-service.example.com
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+      trafficPolicy:
+        loadBalancer:
+          simple: LEAST_CONN
+    - name: v2
+      labels:
+        version: v2
+        env: prod
+      trafficPolicy:
+        loadBalancer:
+          simple: RANDOM
+  exportTo:
+    - "."
+    - "istio-system"
+  # Additional fields for completeness
+  workloadSelector:
+    labels:
+      app: my-app

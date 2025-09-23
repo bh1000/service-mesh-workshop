@@ -1,0 +1,67 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+  - reviews # SNI for virtual service
+  http:
+  - match:
+    - headers:
+        end-users:
+          exact: jason
+    route:
+    - destination:
+        host: reviews # SNI for the service
+        subset: v2
+  # default
+  - route:
+    - destination:
+        host: reviews # SNI for service
+        subset: v3
+
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+  - reviews # SNI for virtual service
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 75
+    - destination:
+        host: reviews
+        subset: v2
+      weight: 25
+---
+apiversion: networking.istio.io/v1
+kind: VirtualService
+name: bookinfo
+metadata:
+  name: bookinfo.com
+spec:
+  hosts:
+  - bookinfo.com # vs to put in the gateway
+  http:
+  - match:
+    - uri:
+        prefix: /reviews
+      route:
+      - destination:
+          host: reviews
+  - match:
+    - uri:
+        prefix: /ratings
+      route:
+      - destination:         
+          host: ratings
+  - route:
+    - destination:
+        host: anything_not_reviews_or_ratings
+
+
