@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: example-route
+  labels:
+    app: istio-ingress
+spec:
+  host: example.com
+  to:
+    kind: Service
+    name: istio-ingressgateway
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

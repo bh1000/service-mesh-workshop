@@ -1,0 +1,41 @@
+# istio-system root namespace
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: example-authorization-policy
+  namespace: foo
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/curl"]
+    - source:
+        namespaces: ["dev"]
+    to:
+    - operation:
+        methods: ["GET", "HEAD"]
+        paths: ["/headers", "/status/*"]
+    when:
+    - key: request.auth.claims[iss]
+      values: ["https://accounts.google.com"]
+
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+ name: httpbin-deny
+ namespace: foo
+spec:
+ selector:
+   matchLabels:
+     app: httpbin
+     version: v1
+ action: DENY
+ rules:
+ - from:
+   - source:
+       notNamespaces: ["foo"]

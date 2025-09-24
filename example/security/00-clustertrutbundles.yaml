@@ -1,0 +1,10 @@
+apiVersion: certificates.k8s.io/v1
+kind: ClusterTrustBundle
+metadata:
+  name: my-trust-bundle
+  namespace: istio-system
+spec:
+  trustBundle: |
+    -----BEGIN CERTIFICATE-----
+    <root-ca-certificate-data>
+    -----END CERTIFICATE-----

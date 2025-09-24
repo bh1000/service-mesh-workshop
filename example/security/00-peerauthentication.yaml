@@ -1,0 +1,25 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication  # Apply to incoming traffic to workloads in the default namespace
+metadata:
+  name: example-peer-authentication-corsPolicy
+  namespace: default
+spec:
+  selector: 
+    matchLabels:  
+      app: httpbin  # apply to workloads with label app=httpbin   
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: "example-workload-policy"
+  namespace: "foo"
+spec:
+  selector:   # Disable mTLS on port 80 for workloads with label app=example-app
+     matchLabels:
+       app: example-app
+  portLevelMtls:
+    80:
+      mode: DISABLE
