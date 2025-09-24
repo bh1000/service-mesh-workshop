@@ -9,16 +9,20 @@
     * Deployments
 
 # Tests > OpenShift
+    * Circuit breaker
     * Timeout
-    * Fault injection
-    * Delay injection
     * Retry policy
+    * Delay injection
+    * Fault injection
     ...
 
 # Missing configurations > OpenShift
     * mtls
-    * breaker
-    * Timeout 
+    * Circuit breaker
+    * Timeout
+    * Retry
+    * Delays
+    * Fault
     ...
 
 # Certificat managment
